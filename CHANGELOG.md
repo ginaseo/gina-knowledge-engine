@@ -1,0 +1,132 @@
+# Changelog
+
+## v1.1.0 (2026-06-28)
+
+### Added
+
+**Daemon mode** (`hermes daemon`)
+- `processor/daemon.py` — polling scheduler (10s tick), schedule.yaml hot-reload
+- Reads `HermesVault/config/schedule.yaml`; creates default on first run
+- Per-job exponential/linear/fixed retry with configurable count and delay
+- Interval formats: `30s`, `5m`, `2h`, `1d`, `hour`, `day`, `sunday`
+- `_make_processor()` — importlib-based factory; validates against `_PROCESSOR_MAP`
+- Graceful `KeyboardInterrupt` shutdown
+
+**Job history** (`hermes history`)
+- `processor/history.py` — `JobRecord` dataclass + `JobHistory` persistence
+- Rolling 500-record JSON in `HermesVault/index/job_history.json`
+- `--last=N` flag to control how many records are displayed (default: 20)
+- `last_success(name)` — returns finish timestamp of most recent successful run
+
+**Knowledge evaluation** (`hermes evaluate`)
+- `processor/evaluator.py` — full knowledge quality analysis
+- Knowledge Statistics: documents, summaries, entities, keywords, relations, projects, people, wiki pages
+- Knowledge Growth: mtime-based new-file counts for today / 7d / 30d
+- Knowledge Quality: entity/keyword/relation/summary coverage %, orphan entities, broken references, duplicate entity names
+- Graph Metrics: nodes, edges, density, connected components, isolated nodes (BFS, no external library)
+- Health Score 0–100 with per-deduction breakdown
+- Learning Score 0–100: `health × 0.7 + min(new_docs_7d × 5, 30)`
+- Evaluation history: rolling 365-entry JSON in `HermesVault/index/evaluation_history.json`
+- Daily learning report written to `HermesVault/reports/daily-learning.md`
+
+**Retrieval benchmark** (`hermes benchmark-retrieval`)
+- `processor/retrieval.py` — keyword overlap retrieval evaluator
+- Stop-word filtered tokenization
+- Auto-generates questions from entity JSON files → `HermesVault/benchmark/questions.json`
+- Reports Top-1 / Top-3 / Top-5 accuracy, Recall, Precision, F1 Score
+
+**Tests**
+- `tests/test_history.py` — 5 tests (empty display, append, rolling window, last_success)
+- `tests/test_daemon.py` — 13 tests (_parse_interval variants, RetryPolicy backoff variants)
+- `tests/test_evaluator.py` — 7 tests (_count, health score, deductions, learning score)
+- `tests/test_retrieval.py` — 8 tests (_keywords, _score, _search)
+- `tests/test_runner.py` — 6 new tests (daemon/history/evaluate/benchmark-retrieval subcommands, --last)
+- Total: **112 tests**
+
+### Changed
+- `processor/runner.py` — 4 new subcommands dispatched via lazy imports
+- `pyproject.toml` — added `pyyaml>=6.0` to `[project.dependencies]`
+- `requirements.txt` — added `pyyaml>=6.0`
+
+---
+
+## v1.0.0 (2026-06-27)
+
+### Added
+
+**CLI subcommands**
+- `hermes run` / `python -m processor.runner run` — explicit run subcommand
+- `hermes watch` — watch subcommand (equivalent to `--watch` flag)
+- `hermes validate` — run Validator only
+- `hermes clean` — run Cleaner only
+- `hermes benchmark` — run full pipeline with per-processor timing table
+
+**Logging**
+- `--log-level=DEBUG|INFO|WARNING|ERROR` — configurable log level per run
+- `--log-file=path` — write logs to rotating file (10 MB, 5 backups)
+- `processor/log.py` — `setup()` now accepts `level` and `log_file` params
+
+**Configuration**
+- `processor/config.py` — centralized env config; reads `HERMES_API_URL`, `HERMES_API_KEY`, `HERMES_VAULT`, `LOG_LEVEL`
+- `cfg.validate_llm()` — fail-fast on missing LLM credentials (called in `LLMClient.__init__`)
+
+**Packaging**
+- `pyproject.toml` — full `[build-system]` and `[project]` sections; `pip install .` supported
+- `hermes` CLI entry point via `project.scripts`
+- `main()` function in `processor/runner.py`
+
+**Tests**
+- 13 new tests covering subcommands, `--log-level`, `--log-file`, `benchmark`, `validate`, `clean`
+- Total: **73 tests**
+
+### Changed
+- `LLMClient` — reads credentials from `processor.config.cfg` instead of calling `load_dotenv()` + `os.getenv()` directly
+- `VaultIndexer` — removed dependency on `processor/runtime.py`; `self.force = False` directly
+- `Validator.validate_summary()` — warns if summary folder is missing instead of crashing
+- `_watch()` — exceptions in the run body are caught and logged; watch loop continues
+
+### Fixed
+- `Validator.validate_summary()` crashed with `FileNotFoundError` if summary folder did not exist
+- `_watch()` would abort the loop if `_run_once()` raised an unhandled exception
+
+### Removed
+- `processor/runtime.py` — only contained `FORCE = False`; replaced with `self.force = False` in VaultIndexer
+
+---
+
+## v0.9.0 (2026-06-27) — pre-release
+
+### Added
+- `processor/log.py` — centralized logging with thread-local capture for parallel output buffering
+- `--parallel` flag — runs entity/keyword/related concurrently; output flushed in order
+- `--watch[=N]` flag — polls pipeline every N seconds (default: 30); graceful Ctrl+C shutdown
+- `ProcessingState` for `EntityProcessor`, `KeywordProcessor`, `RelatedProcessor` — `--force` now works for all processors
+- Incremental `Validator` — `validate_utf8` and `validate_entity` skip unchanged files
+- `LLMCache.flush()` — batches disk writes; called once per processor run via context manager
+- `LLMCache` thread-safe merge on flush — safe for parallel processor runs
+- `LLMClient` context manager (`__enter__` / `__exit__`) — automatic cache flush
+- Early-return SKIP path for all processors — `LLMClient` not created when all files are up to date
+- `tests/` — 60 pytest tests covering ProcessingState, LLMCache, all LLM processors, runner
+- `.github/workflows/ci.yml` — CI runs Ruff, Black, Pytest on every push and PR
+- `requirements.txt`, `requirements-dev.txt`
+- `README.md`, `INSTALL.md`, `ARCHITECTURE.md`
+
+### Changed
+- All `print()` calls replaced with `logging` — same console output format (`%(message)s`)
+- `_SmartHandler` routes log output to per-thread capture buffers during parallel execution
+- `EntityProcessor`, `KeywordProcessor`, `RelatedProcessor` — added `__init__` with `self.force`
+- `VaultIndexer` — `SEARCH_FOLDERS` promoted to module-level constant; `st_mtime` called once per file
+- `Cleaner._remove_invalid` — loop replaced with `any()`
+- `MarkdownProcessor`, `WikiProcessor` — early-return SKIP path added
+- `EntityProcessor` — extracted `_write_entity_stubs` and `_resolve_project_name` as methods; `_ENTITY_FOLDER` dict
+
+### Fixed
+- `--force` had no effect on `EntityProcessor`, `KeywordProcessor`, `RelatedProcessor`
+- `LLMCache.put()` wrote to disk on every API call — now deferred to `flush()`
+- Parallel processor output was interleaved — now buffered per thread, flushed in order
+
+---
+
+## v0.x (internal)
+
+Development only. No changelog.
