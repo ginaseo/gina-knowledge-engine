@@ -31,7 +31,9 @@ def patch_paths(vault, monkeypatch, tmp_path):
     monkeypatch.setattr(dfp_module, "WIKI", vault / "wiki")
     monkeypatch.setattr(dfp_module, "PROMPT", prompt_file)
     monkeypatch.setattr(dfp_module, "PROJECT_ALIAS_FILE", alias_file)
-    monkeypatch.setattr(dfp_module, "SOURCES_FILE", vault / "index" / "description_fill_sources.json")
+    monkeypatch.setattr(
+        dfp_module, "SOURCES_FILE", vault / "index" / "description_fill_sources.json"
+    )
     monkeypatch.setattr(ps_module, "STATE_DIR", vault / "index")
 
 
@@ -49,7 +51,9 @@ def _write_source(vault, stem: str, summary: str, related: str = "") -> None:
         json.dumps([{"type": "Technology", "name": "Kafka"}]), encoding="utf-8"
     )
     if related:
-        (vault / "knowledge" / "related" / f"{stem}-related.md").write_text(related, encoding="utf-8")
+        (vault / "knowledge" / "related" / f"{stem}-related.md").write_text(
+            related, encoding="utf-8"
+        )
 
 
 def test_no_entity_files(caplog):
@@ -62,7 +66,12 @@ def test_fills_todo_stub(vault):
     (vault / "wiki" / "Kafka.md").write_text(TODO_STUB, encoding="utf-8")
 
     fields = json.dumps(
-        {"description": "메시지 큐 시스템", "summary": "- 요약1", "related_entities": ["Streaming"], "tags": ["queue"]}
+        {
+            "description": "메시지 큐 시스템",
+            "summary": "- 요약1",
+            "related_entities": ["Streaming"],
+            "tags": ["queue"],
+        }
     )
     with patch("processor.description_fill_processor.LLMClient", return_value=_mock_client(fields)):
         DescriptionFillProcessor().process()
@@ -106,14 +115,18 @@ def test_merge_new_source_updates_existing_doc(vault):
     _write_source(vault, "a", "Kafka summary text")
     (vault / "wiki" / "Kafka.md").write_text(TODO_STUB, encoding="utf-8")
 
-    first = json.dumps({"description": "1차 설명", "summary": "s1", "related_entities": [], "tags": []})
+    first = json.dumps(
+        {"description": "1차 설명", "summary": "s1", "related_entities": [], "tags": []}
+    )
     with patch("processor.description_fill_processor.LLMClient", return_value=_mock_client(first)):
         DescriptionFillProcessor().process()
 
     # New summary/entity file mentioning the same entity again
     _write_source(vault, "b", "Kafka more text")
 
-    second = json.dumps({"description": "병합된 설명", "summary": "s2", "related_entities": [], "tags": []})
+    second = json.dumps(
+        {"description": "병합된 설명", "summary": "s2", "related_entities": [], "tags": []}
+    )
     with patch("processor.description_fill_processor.LLMClient", return_value=_mock_client(second)):
         DescriptionFillProcessor().process()
 
