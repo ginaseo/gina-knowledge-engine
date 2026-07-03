@@ -223,3 +223,50 @@ _run_once()
           └── each thread: log.capture(processor.process)
           └── results flushed to stdout in original order
 ```
+
+---
+
+## Architecture Status
+
+**Status:** FROZEN
+**Version:** v1.0
+**Freeze Date:** 2026-07
+
+### Current Architecture
+
+- Hermes = Agent Runtime
+- Gina = Knowledge Engine
+- Obsidian = Source of Truth
+- MCP = Integration Layer
+- Knowledge Pipeline = Independent
+
+### Design Principles
+
+- Reuse Before Build
+- YAGNI
+- Keep Pipeline Independent
+- MCP is the only integration point
+- Obsidian is never synchronized into Hermes Memory
+- Add abstractions only after a second implementation exists
+
+### Gina MCP Server (Phase 1 target — not yet implemented)
+
+```
+Hermes Agent (Gateway/Scheduler/Memory/Skill/MCP client) — unmodified
+        │  MCP (config.yaml mcp_servers entry only)
+        ▼
+Gina MCP Server
+  ├── search()          keyword lookup over index/vault_index.json
+  ├── build_context()   wiki doc + bounded Related Links expansion
+  ├── health()           liveness/readiness, cheap
+  └── evaluate()/briefing()  thin wrappers over existing Evaluator output
+        │
+Knowledge Pipeline (this repo, daemon.py) — unmodified, independent process
+        │
+   HermesVault (Obsidian, Source of Truth)
+```
+
+Any change that violates a Design Principle above (e.g. syncing Obsidian into
+Hermes Memory, adding a second integration point besides MCP, introducing a
+Retriever abstraction before a second implementation exists) is an
+**architecture change** and needs its own review — not a routine feature add.
