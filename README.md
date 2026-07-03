@@ -128,6 +128,8 @@ gina-agent/
 │   ├── llm/
 │   │   ├── client.py           # OpenAI-compatible LLM client
 │   │   └── cache.py            # SHA256-keyed response cache
+│   ├── mcp/
+│   │   └── server.py           # MCP server (search/build_context/health) for Hermes
 │   ├── markdown_processor.py
 │   ├── wiki_processor.py
 │   ├── summary_processor.py
@@ -228,3 +230,59 @@ written to `HermesVault/reports/daily-learning.md`.
 `hermes benchmark-retrieval` evaluates the keyword-based search quality:
 - Auto-generates questions from entity JSON files if none exist
 - Reports Top-1 / Top-3 / Top-5 accuracy, Recall, Precision, F1 Score
+
+---
+
+## MCP Server (Phase 1 — Hermes integration)
+
+Exposes the vault as an [MCP](https://modelcontextprotocol.io) server so any MCP
+client (Hermes, Claude Desktop, Cursor, VS Code, ChatGPT) can search and read
+Gina's knowledge without syncing or copying it anywhere. Read-only — the
+Knowledge Pipeline above is unaffected and keeps running independently.
+
+```bash
+pip install .              # installs the `mcp` dependency too
+gina-mcp                   # starts the stdio MCP server
+# or
+python -m processor.mcp.server
+```
+
+Flow: `Hermes → MCP → search() → build_context() → LLM`
+
+```
+search("Kafka")
+  → [{"id": "wiki/Kafka.md", "title": "Kafka", "type": "wiki", "score": 0.8}, ...]
+
+build_context("wiki/Kafka.md", max_related=3, max_tokens=2000)
+  → { "context": "<wiki body + up to 3 Related Links excerpts>",
+      "sources": ["wiki/Kafka.md", "wiki/Java.md", ...],
+      "truncated": false }
+
+health()
+  → { "status": "ok", "vault_accessible": true, "uptime_s": 42.1 }
+```
+
+### Registering with Hermes
+
+```yaml
+# ~/.hermes/config.yaml
+mcp_servers:
+  gina_wiki:
+    command: "gina-mcp"
+```
+
+### Tools
+
+| Tool | Input | Notes |
+|---|---|---|
+| `search(query, top_k=5)` | free-text query | reuses `retrieval._search`/`_score` as-is, no new ranking logic |
+| `build_context(id, max_related=3, max_tokens=2000)` | `id` from a `search()` result | follows `[[Related Links]]` up to `max_related`, truncates at `max_tokens*4` chars |
+| `health()` | none | vault reachability + uptime, no content scan |
+
+Errors follow a fixed contract: `{"error": {"code", "message", "retryable"}}` with
+`code` in `NOT_FOUND | INVALID_ARGUMENT | TIMEOUT | VAULT_UNAVAILABLE | CORRUPT_FILE | INTERNAL`.
+`search()` has a 2s budget, `build_context()` a 5s hard / 3s soft budget (returns
+partial context with `truncated: true` past the soft budget instead of failing).
+
+See `ARCHITECTURE.md` → "Architecture Status" for the frozen design this
+implements, and why `evaluate()`/`briefing()` tools are deferred to Phase 2.

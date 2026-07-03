@@ -13,10 +13,12 @@ dependencies = [
     "python-dotenv>=1.0",
     "openai>=1.0",
     "pyyaml>=6.0",
+    "mcp>=1.0",
 ]
 
 [project.scripts]
 hermes = "processor.runner:main"
+gina-mcp = "processor.mcp.server:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
