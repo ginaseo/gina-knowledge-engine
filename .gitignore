@@ -31,3 +31,7 @@ test_auth.py
 test_encoding.py
 test_hermes.py
 test_llm.py
+.env.bak*
+
+# Claude
+CLAUDE.md

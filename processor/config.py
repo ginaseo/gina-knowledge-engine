@@ -21,6 +21,7 @@ class Config:
     api_url: str
     api_key: str
     log_level: str
+    model: str
 
     def validate_llm(self) -> None:
         """Raise EnvironmentError if LLM credentials are absent."""
@@ -43,4 +44,5 @@ cfg: Config = Config(
     api_url=os.getenv("HERMES_API_URL", ""),
     api_key=os.getenv("HERMES_API_KEY", ""),
     log_level=os.getenv("LOG_LEVEL", "INFO").upper(),
+    model=os.getenv("HERMES_MODEL", "gpt-5.5"),
 )

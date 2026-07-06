@@ -362,3 +362,50 @@ partial context with `truncated: true` past the soft budget instead of failing).
 
 See `ARCHITECTURE.md` → "Architecture Status" for the frozen design this
 implements, and why `evaluate()`/`briefing()` tools are deferred to Phase 2.
+
+---
+
+## Deployment (EC2)
+
+Currently running on AWS EC2 (Ubuntu 24.04).
+
+### Infrastructure
+- **EC2**: AWS EC2, Ubuntu 24.04
+- **Docker**: hermes-gateway (:8642), hermes-dashboard (:9119)
+- **Vault**: `/home/ubuntu/gina-knowledge-engine/HermesVault`
+- **LLM**: OpenAI-compatible API (Gemini / OpenRouter / OpenAI)
+- **Automation**: systemd services
+
+### systemd Services
+| Service | Description |
+|---------|-------------|
+| `gina-knowledge` | Pipeline watch mode (every 30s) |
+| `gina-slack` | Slack message collector (every 5min) |
+
+```bash
+sudo systemctl status gina-knowledge
+sudo systemctl status gina-slack
+sudo journalctl -u gina-knowledge -f
+```
+
+### Slack Channels
+| Channel ID | Description |
+|------------|-------------|
+| C0BARH4H133 | Main channel |
+| C0BDAAST4M8 | Stock morning briefing |
+| C0BAHBHN811 | Backend job briefing |
+
+---
+
+## Known Issues
+
+### MCP Server ModuleNotFoundError
+**Cause**: Hermes Gateway launches stdio MCP servers without the project directory as CWD.
+**Solution**: Register MCP server with `PYTHONPATH=/opt/gina`
+
+```bash
+hermes mcp add gina \
+  --command python \
+  --env PYTHONPATH=/opt/gina \
+  --args -m processor.mcp.server
+```
