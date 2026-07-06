@@ -389,11 +389,11 @@ sudo journalctl -u gina-knowledge -f
 ```
 
 ### Slack Channels
-| Channel ID | Description |
+| Channel | Description |
 |------------|-------------|
-| C0BARH4H133 | Main channel |
-| C0BDAAST4M8 | Stock morning briefing |
-| C0BAHBHN811 | Backend job briefing |
+| Main channel | 메인 채널 |
+| Stock briefing | 주식 모닝 브리핑 |
+| Job briefing | 백엔드 채용 브리핑 |
 
 ---
 
@@ -409,3 +409,5 @@ hermes mcp add gina \
   --env PYTHONPATH=/opt/gina \
   --args -m processor.mcp.server
 ```
+
+> Channel IDs are stored in `.env` (not committed).
