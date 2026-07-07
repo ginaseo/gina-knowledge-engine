@@ -266,3 +266,34 @@ def recommend(category: str = "stock", top_k: int = 5) -> dict:
         return result
     except Exception as e:
         _error("INTERNAL", str(e), True)
+
+
+@mcp.tool()
+def timeline(
+    start_date: str = "",
+    end_date: str = "",
+    entity: str = "",
+    days: int = 30,
+) -> dict:
+    """Return a date-based timeline of knowledge accumulation.
+
+    Args:
+        start_date: Start date in YYYY-MM-DD format (default: days ago)
+        end_date: End date in YYYY-MM-DD format (default: today)
+        entity: Filter by entity name (optional)
+        days: Number of days to look back if start_date not specified (default: 30)
+    """
+    started = time.monotonic()
+    try:
+        from processor.timeline import TimelineProcessor
+
+        result = TimelineProcessor().run(
+            start_date=start_date or None,
+            end_date=end_date or None,
+            entity=entity or None,
+            days=days,
+        )
+        _log("timeline", started, "ok", len(entity))
+        return result
+    except Exception as e:
+        _error("INTERNAL", str(e), True)
