@@ -6,6 +6,7 @@ from processor.log import get_logger
 
 logger = get_logger(__name__)
 
+
 class LLMClient:
     def __init__(self):
         cfg.validate_llm()

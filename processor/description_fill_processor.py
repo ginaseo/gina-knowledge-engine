@@ -71,10 +71,7 @@ class DescriptionFillProcessor:
             for f in entity_files
             if (now - f.stat().st_mtime) < 7 * 86400
         }
-        targets = [
-            f for f in all_wiki
-            if source_index.get(f.stem.lower(), set()) & recent_stems
-        ]
+        targets = [f for f in all_wiki if source_index.get(f.stem.lower(), set()) & recent_stems]
         if not targets:
             logger.info("[SKIP] No recently updated wiki stubs.")
             for f in entity_files:
