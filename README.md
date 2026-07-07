@@ -53,6 +53,16 @@ See [INSTALL.md](INSTALL.md) for full setup instructions.
 
 Set these in a `.env` file in the project root.
 
+### Supported LLM Providers
+
+| Provider | API URL | Free Tier | Recommended Model |
+|----------|---------|-----------|-------------------|
+| Cerebras | https://api.cerebras.ai/v1 | 무료 | gpt-oss-120b |
+| Groq | https://api.groq.com/openai/v1 | 100,000 토큰/일 | llama-3.3-70b-versatile |
+| Gemini | https://generativelanguage.googleapis.com/v1beta/openai | 1,500회/일 | gemini-2.0-flash |
+| OpenRouter | https://openrouter.ai/api/v1 | 50회/일 | openrouter/free |
+| OpenAI | https://api.openai.com/v1 | 유료 | gpt-4o-mini |
+
 ---
 
 ## Usage
