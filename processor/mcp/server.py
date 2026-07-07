@@ -228,3 +228,41 @@ def evaluate() -> dict:
         return result
     except Exception as e:
         _error("INTERNAL", str(e), True)
+
+
+@mcp.tool()
+def briefing(date: str = "", channel: str = "") -> dict:
+    """Generate a daily briefing from recent vault changes and post to Slack.
+
+    Args:
+        date: Target date in YYYY-MM-DD format (default: today)
+        channel: Slack channel ID (default: main channel from env)
+    """
+    started = time.monotonic()
+    try:
+        from processor.briefing import BriefingProcessor
+
+        result = BriefingProcessor().run(date=date or None, channel=channel or None)
+        _log("briefing", started, "ok", 0)
+        return result
+    except Exception as e:
+        _error("INTERNAL", str(e), True)
+
+
+@mcp.tool()
+def recommend(category: str = "stock", top_k: int = 5) -> dict:
+    """Recommend stocks or job postings based on entity graph connectivity.
+
+    Args:
+        category: 'stock' | 'job'
+        top_k: Number of recommendations (default: 5)
+    """
+    started = time.monotonic()
+    try:
+        from processor.recommend import RecommendProcessor
+
+        result = RecommendProcessor().run(category=category, top_k=top_k)
+        _log("recommend", started, "ok", len(category))
+        return result
+    except Exception as e:
+        _error("INTERNAL", str(e), True)
