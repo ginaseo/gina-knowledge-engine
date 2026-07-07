@@ -7,8 +7,9 @@ import time
 import pytest
 from mcp.server.fastmcp.exceptions import ToolError
 
+import processor.evaluator as evaluator_module
 import processor.mcp.server as srv_module
-from processor.mcp.server import build_context, health, mcp, search
+from processor.mcp.server import build_context, evaluate, health, mcp, search
 
 
 @pytest.fixture(autouse=True)
@@ -129,3 +130,27 @@ def test_search_timeout(vault, monkeypatch):
 def test_mcp_server_registers_tools():
     names = {t.name for t in asyncio.run(mcp.list_tools())}
     assert {"search", "build_context", "health"} <= names
+
+
+def test_evaluate_matches_dataclass_field_names(vault, monkeypatch):
+    """Regression test: evaluate() once referenced field names that didn't
+    exist on QualityMetrics/GraphMetrics (e.g. quality.coverage_pct,
+    graph.nodes), raising AttributeError on every real call."""
+    monkeypatch.setattr(evaluator_module, "VAULT", vault)
+
+    result = evaluate()
+
+    assert result["quality"].keys() == {
+        "entity_coverage",
+        "keyword_coverage",
+        "relation_coverage",
+        "summary_coverage",
+        "missing_summaries",
+        "missing_keywords",
+        "missing_relations",
+        "orphan_entities",
+        "broken_refs",
+    }
+    assert result["graph"].keys() == {"nodes", "edges", "density", "components", "isolated"}
+    assert isinstance(result["health_score"], float)
+    assert isinstance(result["learning_score"], float)
