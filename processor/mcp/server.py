@@ -182,3 +182,49 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+@mcp.tool()
+def evaluate() -> dict:
+    """Return vault statistics, quality metrics, health score, and learning score."""
+    started = time.monotonic()
+    try:
+        from processor.evaluator import Evaluator
+
+        e = Evaluator()
+        stats = e._scan_stats()
+        quality = e._scan_quality()
+        graph = e._build_graph()
+        growth = e._scan_growth()
+        health, _ = e._compute_health(stats, quality)
+        learning = e._compute_learning(health, growth)
+        result = {
+            "stats": {
+                "documents": stats.documents,
+                "summaries": stats.summaries,
+                "entities": stats.entities,
+                "keywords": stats.keywords,
+                "relations": stats.relations,
+                "wiki_pages": stats.wiki_pages,
+            },
+            "growth": growth,
+            "quality": {
+                "coverage_pct": quality.coverage_pct,
+                "missing_files": quality.missing_files,
+                "orphan_entities": quality.orphan_entities,
+                "broken_refs": quality.broken_refs,
+            },
+            "graph": {
+                "nodes": graph.nodes,
+                "edges": graph.edges,
+                "density": graph.density,
+                "components": graph.components,
+                "isolated": graph.isolated,
+            },
+            "health_score": health,
+            "learning_score": learning,
+        }
+        _log("evaluate", started, "ok", 0)
+        return result
+    except Exception as e:
+        _error("INTERNAL", str(e), True)
