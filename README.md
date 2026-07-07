@@ -57,11 +57,11 @@ Set these in a `.env` file in the project root.
 
 | Provider | API URL | Free Tier | Recommended Model |
 |----------|---------|-----------|-------------------|
-| Cerebras | https://api.cerebras.ai/v1 | 무료 | gpt-oss-120b |
-| Groq | https://api.groq.com/openai/v1 | 100,000 토큰/일 | llama-3.3-70b-versatile |
-| Gemini | https://generativelanguage.googleapis.com/v1beta/openai | 1,500회/일 | gemini-2.0-flash |
-| OpenRouter | https://openrouter.ai/api/v1 | 50회/일 | openrouter/free |
-| OpenAI | https://api.openai.com/v1 | 유료 | gpt-4o-mini |
+| Cerebras | https://api.cerebras.ai/v1 | Free | gpt-oss-120b |
+| Groq | https://api.groq.com/openai/v1 | 100,000 tokens/day | llama-3.3-70b-versatile |
+| Gemini | https://generativelanguage.googleapis.com/v1beta/openai | 1,500 requests/day | gemini-2.0-flash |
+| OpenRouter | https://openrouter.ai/api/v1 | 50 requests/day | openrouter/free |
+| OpenAI | https://api.openai.com/v1 | Paid | gpt-4o-mini |
 
 ---
 
@@ -278,8 +278,8 @@ sudo journalctl -u gina-knowledge -f
 ### Slack Channels
 | Channel | Description |
 |------------|-------------|
-| Main channel | 메인 채널 |
-| Stock briefing | 주식 모닝 브리핑 |
-| Job briefing | 백엔드 채용 브리핑 |
+| Main channel | General updates |
+| Stock briefing | Daily stock morning briefing |
+| Job briefing | Backend job postings briefing |
 
 > Channel IDs are stored in `.env` (not committed).
