@@ -1,4 +1,5 @@
 from openai import OpenAI
+
 from processor.config import cfg
 from processor.llm.cache import LLMCache
 from processor.log import get_logger
