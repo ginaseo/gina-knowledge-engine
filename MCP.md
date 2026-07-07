@@ -34,10 +34,10 @@ mcp_servers:
 
 Reload without restarting: `/reload-mcp`
 
-## Known Issue: ModuleNotFoundError
+### Verified Registration (EC2)
 
-**Cause**: Hermes Gateway launches stdio MCP servers without project directory as CWD.
-**Solution**:
+Actually used in production — registers the server with the correct `PYTHONPATH`
+so stdio launch resolves `processor.mcp.server` regardless of Hermes Gateway's CWD:
 
 ```bash
 hermes mcp add gina \
@@ -45,6 +45,24 @@ hermes mcp add gina \
   --env PYTHONPATH=/opt/gina \
   --args -m processor.mcp.server
 ```
+
+## Known Issue: ModuleNotFoundError
+
+**Cause**: Hermes Gateway launches stdio MCP servers without project directory as CWD.
+**Solution**: same as above (`--env PYTHONPATH=/opt/gina`).
+
+## Slack Query Example
+
+Asking in Slack routes through Hermes → MCP → `search()` → `build_context()` → LLM:
+
+```
+User: 오늘 주식 브리핑 요약해줘
+Bot:  [RAG 응답 — 주식 모닝 브리핑 채널의 최신 요약/엔티티를 검색해 컨텍스트로 구성 후 답변]
+```
+
+## Vault Scale
+
+Current `vault_index.json`: 136+ documents (summary, entity, keyword, related, wiki 포함).
 
 ## Error Contract
 
