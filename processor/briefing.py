@@ -17,11 +17,10 @@ INDEX_FILE = VAULT / "index" / "vault_index.json"
 
 
 class BriefingProcessor:
-    def run(self, date: str | None = None, channel: str | None = None) -> dict:
+    def run(self, date: str | None = None) -> dict:
         """
         Args:
             date: YYYY-MM-DD (default: today)
-            channel: Slack channel ID (optional)
 
         Returns:
             {
@@ -106,5 +105,4 @@ class BriefingProcessor:
             "total_docs": total_docs,
             "summaries": new_summaries,
             "message": message,
-            "channel": channel,
         }

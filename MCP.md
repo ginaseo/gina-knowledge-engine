@@ -23,7 +23,7 @@ Flow: `Hermes → MCP → search() → build_context() → LLM`
 | `build_context(id, max_related=3, max_tokens=2000)` | id from search() | follows Related Links, truncates at max_tokens |
 | `health()` | none | vault reachability + uptime |
 | `evaluate()` | none | vault stats, quality, health/learning scores |
-| `briefing(date="", channel="")` | date `YYYY-MM-DD`, Slack channel ID | summarizes recent vault changes, posts to Slack |
+| `briefing(date="")` | date `YYYY-MM-DD` | summarizes recent vault changes |
 | `recommend(category="stock", top_k=5)` | `stock` \| `job`, count | ranks entities by graph connectivity |
 | `timeline(start_date="", end_date="", entity="", days=30)` | date range, optional entity filter | chronological knowledge accumulation |
 

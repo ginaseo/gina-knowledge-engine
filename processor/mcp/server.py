@@ -1,3 +1,4 @@
+import functools
 import json
 import re
 import time
@@ -36,6 +37,19 @@ def _error(code: str, message: str, retryable: bool) -> None:
 def _log(tool: str, started: float, status: str, query_len: int) -> None:
     elapsed_ms = round((time.monotonic() - started) * 1000, 1)
     logger.info(f"[MCP] tool={tool} elapsed={elapsed_ms}ms status={status} query_len={query_len}")
+
+
+def _tool_errors(fn):
+    """Wrap an MCP tool so any unhandled exception becomes an INTERNAL error contract."""
+
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        try:
+            return fn(*args, **kwargs)
+        except Exception as e:
+            _error("INTERNAL", str(e), True)
+
+    return wrapper
 
 
 def _run_with_timeout(fn, timeout: float, message: str):
@@ -177,71 +191,67 @@ def health() -> dict:
 
 
 @mcp.tool()
+@_tool_errors
 def evaluate() -> dict:
     """Return vault statistics, quality metrics, health score, and learning score."""
     started = time.monotonic()
-    try:
-        from processor.evaluator import Evaluator
+    from processor.evaluator import Evaluator
 
-        e = Evaluator()
-        stats = e._scan_stats()
-        quality = e._scan_quality()
-        graph = e._build_graph()
-        growth = e._scan_growth()
-        health, _ = e._compute_health(stats, quality)
-        learning = e._compute_learning(health, growth)
-        result = {
-            "stats": {
-                "documents": stats.documents,
-                "summaries": stats.summaries,
-                "entities": stats.entities,
-                "keywords": stats.keywords,
-                "relations": stats.relations,
-                "wiki_pages": stats.wiki_pages,
-            },
-            "growth": growth,
-            "quality": {
-                "coverage_pct": quality.coverage_pct,
-                "missing_files": quality.missing_files,
-                "orphan_entities": quality.orphan_entities,
-                "broken_refs": quality.broken_refs,
-            },
-            "graph": {
-                "nodes": graph.nodes,
-                "edges": graph.edges,
-                "density": graph.density,
-                "components": graph.components,
-                "isolated": graph.isolated,
-            },
-            "health_score": health,
-            "learning_score": learning,
-        }
-        _log("evaluate", started, "ok", 0)
-        return result
-    except Exception as e:
-        _error("INTERNAL", str(e), True)
+    e = Evaluator()
+    stats = e._scan_stats()
+    quality = e._scan_quality()
+    graph = e._build_graph()
+    growth = e._scan_growth()
+    health, _ = e._compute_health(stats, quality)
+    learning = e._compute_learning(health, growth)
+    result = {
+        "stats": {
+            "documents": stats.documents,
+            "summaries": stats.summaries,
+            "entities": stats.entities,
+            "keywords": stats.keywords,
+            "relations": stats.relations,
+            "wiki_pages": stats.wiki_pages,
+        },
+        "growth": growth,
+        "quality": {
+            "coverage_pct": quality.coverage_pct,
+            "missing_files": quality.missing_files,
+            "orphan_entities": quality.orphan_entities,
+            "broken_refs": quality.broken_refs,
+        },
+        "graph": {
+            "nodes": graph.nodes,
+            "edges": graph.edges,
+            "density": graph.density,
+            "components": graph.components,
+            "isolated": graph.isolated,
+        },
+        "health_score": health,
+        "learning_score": learning,
+    }
+    _log("evaluate", started, "ok", 0)
+    return result
 
 
 @mcp.tool()
-def briefing(date: str = "", channel: str = "") -> dict:
-    """Generate a daily briefing from recent vault changes and post to Slack.
+@_tool_errors
+def briefing(date: str = "") -> dict:
+    """Generate a daily briefing from recent vault changes.
 
     Args:
         date: Target date in YYYY-MM-DD format (default: today)
-        channel: Slack channel ID (default: main channel from env)
     """
     started = time.monotonic()
-    try:
-        from processor.briefing import BriefingProcessor
+    from processor.briefing import BriefingProcessor
 
-        result = BriefingProcessor().run(date=date or None, channel=channel or None)
-        _log("briefing", started, "ok", 0)
-        return result
-    except Exception as e:
-        _error("INTERNAL", str(e), True)
+    result = BriefingProcessor().run(date=date or None)
+    _log("briefing", started, "ok", 0)
+    return result
 
 
 @mcp.tool()
+@_tool_errors
 def recommend(category: str = "stock", top_k: int = 5) -> dict:
     """Recommend stocks or job postings based on entity graph connectivity.
 
@@ -250,17 +260,15 @@ def recommend(category: str = "stock", top_k: int = 5) -> dict:
         top_k: Number of recommendations (default: 5)
     """
     started = time.monotonic()
-    try:
-        from processor.recommend import RecommendProcessor
+    from processor.recommend import RecommendProcessor
 
-        result = RecommendProcessor().run(category=category, top_k=top_k)
-        _log("recommend", started, "ok", len(category))
-        return result
-    except Exception as e:
-        _error("INTERNAL", str(e), True)
+    result = RecommendProcessor().run(category=category, top_k=top_k)
+    _log("recommend", started, "ok", len(category))
+    return result
 
 
 @mcp.tool()
+@_tool_errors
 def timeline(
     start_date: str = "",
     end_date: str = "",
@@ -276,19 +284,16 @@ def timeline(
         days: Number of days to look back if start_date not specified (default: 30)
     """
     started = time.monotonic()
-    try:
-        from processor.timeline import TimelineProcessor
+    from processor.timeline import TimelineProcessor
 
-        result = TimelineProcessor().run(
-            start_date=start_date or None,
-            end_date=end_date or None,
-            entity=entity or None,
-            days=days,
-        )
-        _log("timeline", started, "ok", len(entity))
-        return result
-    except Exception as e:
-        _error("INTERNAL", str(e), True)
+    result = TimelineProcessor().run(
+        start_date=start_date or None,
+        end_date=end_date or None,
+        entity=entity or None,
+        days=days,
+    )
+    _log("timeline", started, "ok", len(entity))
+    return result
 
 
 def main() -> None:
