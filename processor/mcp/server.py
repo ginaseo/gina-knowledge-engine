@@ -81,7 +81,7 @@ def _resolve_doc_path(doc_id: str) -> Path:
 
 @mcp.tool()
 def search(query: str, top_k: int = 5) -> dict:
-    """Search Hermes Agent's Obsidian knowledge base (wiki/projects/people) for matching documents."""
+    """Search Hermes Agent's Obsidian knowledge base (wiki/projects/people)."""
     started = time.monotonic()
 
     if not query or not query.strip():
