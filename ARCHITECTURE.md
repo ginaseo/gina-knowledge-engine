@@ -2,7 +2,7 @@
 
 ## Overview
 
-Gina Agent is a sequential processor pipeline. Each stage reads from the previous
+Hermes Agent is a sequential processor pipeline. Each stage reads from the previous
 stage's output. Incremental state tracking ensures only changed files are reprocessed.
 
 ---
@@ -234,8 +234,8 @@ _run_once()
 
 ### Current Architecture
 
-- Hermes = Agent Runtime
-- Gina = Knowledge Engine
+- External Agent = Agent Runtime
+- Hermes = Knowledge Engine
 - Obsidian = Source of Truth
 - MCP = Integration Layer
 - Knowledge Pipeline = Independent
@@ -246,16 +246,16 @@ _run_once()
 - YAGNI
 - Keep Pipeline Independent
 - MCP is the only integration point
-- Obsidian is never synchronized into Hermes Memory
+- Obsidian is never synchronized into External Agent Memory
 - Add abstractions only after a second implementation exists
 
-### Gina MCP Server (Phase 1 target — not yet implemented)
+### Hermes MCP Server (Phase 1 target — not yet implemented)
 
 ```
-Hermes Agent (Gateway/Scheduler/Memory/Skill/MCP client) — unmodified
+External Agent (Gateway/Scheduler/Memory/Skill/MCP client) — unmodified
         │  MCP (config.yaml mcp_servers entry only)
         ▼
-Gina MCP Server
+Hermes MCP Server
   ├── search()          keyword lookup over index/vault_index.json
   ├── build_context()   wiki doc + bounded Related Links expansion
   ├── health()           liveness/readiness, cheap
@@ -267,6 +267,6 @@ Knowledge Pipeline (this repo, daemon.py) — unmodified, independent process
 ```
 
 Any change that violates a Design Principle above (e.g. syncing Obsidian into
-Hermes Memory, adding a second integration point besides MCP, introducing a
+External Agent Memory, adding a second integration point besides MCP, introducing a
 Retriever abstraction before a second implementation exists) is an
 **architecture change** and needs its own review — not a routine feature add.

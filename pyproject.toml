@@ -18,7 +18,7 @@ dependencies = [
 
 [project.scripts]
 hermes = "processor.runner:main"
-gina-mcp = "processor.mcp.server:main"
+hermes-mcp = "processor.mcp.server:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

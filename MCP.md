@@ -2,13 +2,13 @@
 
 Exposes the vault as an [MCP](https://modelcontextprotocol.io) server so any MCP
 client (Hermes, Claude Desktop, Cursor, VS Code, ChatGPT) can search and read
-Gina's knowledge without syncing or copying it anywhere.
+Hermes's knowledge without syncing or copying it anywhere.
 
 ## Starting the Server
 
 ```bash
 pip install .
-gina-mcp
+hermes-mcp
 # or
 python -m processor.mcp.server
 ```
@@ -32,8 +32,8 @@ Flow: `Hermes → MCP → search() → build_context() → LLM`
 ```yaml
 # ~/.hermes/config.yaml
 mcp_servers:
-  gina_wiki:
-    command: "gina-mcp"
+  hermes_wiki:
+    command: "hermes-mcp"
 ```
 
 Reload without restarting: `/reload-mcp`
@@ -44,16 +44,23 @@ Actually used in production — registers the server with the correct `PYTHONPAT
 so stdio launch resolves `processor.mcp.server` regardless of Hermes Gateway's CWD:
 
 ```bash
-hermes mcp add gina \
+hermes mcp add hermes-wiki \
   --command python \
-  --env PYTHONPATH=/opt/gina \
+  --env PYTHONPATH=/opt/knowledge-engine \
   --args -m processor.mcp.server
 ```
+
+> `/opt/...` is a path inside the `hermes-gateway` Docker container (bind-mounted
+> from `/home/ubuntu/hermes-knowledge-engine` via `hermes-docker/docker-compose.yml`),
+> not the EC2 host's own `/opt`. **Do not use `/opt/hermes`** — that path already
+> exists inside the `nousresearch/hermes-agent` image itself (its own `cli.py`,
+> `agent/`, etc.); mounting this repo there would shadow the vendor's install.
+> `/opt/knowledge-engine` is the collision-free destination actually verified on EC2.
 
 ## Known Issue: ModuleNotFoundError
 
 **Cause**: Hermes Gateway launches stdio MCP servers without project directory as CWD.
-**Solution**: same as above (`--env PYTHONPATH=/opt/gina`).
+**Solution**: same as above (`--env PYTHONPATH=/opt/knowledge-engine`).
 
 ## Slack Query Example
 

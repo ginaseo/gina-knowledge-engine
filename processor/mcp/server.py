@@ -25,7 +25,7 @@ _LINK_RE = re.compile(r"\[\[([^\]]+)\]\]")
 _START_TIME = time.monotonic()
 
 logger = get_logger(__name__)
-mcp = FastMCP("gina-wiki")
+mcp = FastMCP("hermes-wiki")
 _executor = ThreadPoolExecutor(max_workers=4)
 
 
@@ -81,7 +81,7 @@ def _resolve_doc_path(doc_id: str) -> Path:
 
 @mcp.tool()
 def search(query: str, top_k: int = 5) -> dict:
-    """Search Gina Agent's Obsidian knowledge base (wiki/projects/people) for matching documents."""
+    """Search Hermes Agent's Obsidian knowledge base (wiki/projects/people) for matching documents."""
     started = time.monotonic()
 
     if not query or not query.strip():
@@ -177,7 +177,7 @@ def build_context(id: str, max_related: int = 3, max_tokens: int = 2000) -> dict
 
 @mcp.tool()
 def health() -> dict:
-    """Report whether the Gina MCP server and its Obsidian vault are reachable."""
+    """Report whether the Hermes MCP server and its Obsidian vault are reachable."""
     started = time.monotonic()
     vault_accessible = VAULT.exists() and VAULT.is_dir()
     status = "ok" if vault_accessible else "degraded"

@@ -247,20 +247,19 @@ Currently running on AWS EC2 (Ubuntu 24.04).
 ### Infrastructure
 - **EC2**: AWS EC2, Ubuntu 24.04
 - **Docker**: hermes-gateway (:8642), hermes-dashboard (:9119)
-- **Vault**: `/home/ubuntu/gina-knowledge-engine/HermesVault`
-- **LLM**: OpenAI-compatible API (Gemini / OpenRouter / OpenAI)
+- **Vault**: `/home/ubuntu/hermes-knowledge-engine/HermesVault`
 - **Automation**: systemd services
 
 ### systemd Services
 | Service | Description |
 |---------|-------------|
-| `gina-knowledge` | Pipeline watch mode (every 30s) |
-| `gina-slack` | Slack message collector (every 5min) |
+| `hermes-knowledge` | Pipeline watch mode (every 30s) |
+| `hermes-slack` | Slack message collector (every 5min) |
 
 ```bash
-sudo systemctl status gina-knowledge
-sudo systemctl status gina-slack
-sudo journalctl -u gina-knowledge -f
+sudo systemctl status hermes-knowledge
+sudo systemctl status hermes-slack
+sudo journalctl -u hermes-knowledge -f
 ```
 
 ### Slack Channels

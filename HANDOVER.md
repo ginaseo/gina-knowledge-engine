@@ -24,7 +24,7 @@ Slack, GitHub, Obsidian 등에 축적되는 지식을 자동으로 수집·가�
   * DescriptionFillProcessor / VaultIndexer / Validator
 * ✅ 프롬프트 파일 분리 (summary / entity / keyword / related / description_fill)
 * ✅ project_alias.json 주식/채용 alias 추가
-* ✅ systemd 자동화 3개 (gina-knowledge 5분, gina-slack 5분, gina-enrich KST 03:00)
+* ✅ systemd 자동화 3개 (hermes-knowledge 5분, hermes-slack 5분, hermes-enrich KST 03:00)
 * ✅ Slack RAG 응답 확인
 * ✅ CI (ruff + black) 통과
 * ✅ Phase 4 MCP Tools (evaluate, briefing, recommend, timeline) — 설계: [docs/phase4.md](docs/phase4.md)
@@ -35,7 +35,7 @@ Slack, GitHub, Obsidian 등에 축적되는 지식을 자동으로 수집·가�
 
 ## EC2
 * AWS EC2, Ubuntu 24.04
-* /home/ubuntu/gina-knowledge-engine
+* /home/ubuntu/hermes-knowledge-engine
 
 ## Docker
 * hermes-gateway (:8642)
@@ -45,9 +45,9 @@ Slack, GitHub, Obsidian 등에 축적되는 지식을 자동으로 수집·가�
 
 | 서비스 | 동작 | 간격 |
 |--------|------|------|
-| gina-slack.timer | Slack 메시지 수집 | 5분 |
-| gina-knowledge.service | 전체 파이프라인 | 5분 |
-| gina-enrich.timer | DescriptionFillProcessor | 매일 KST 03:00 |
+| hermes-slack.timer | Slack 메시지 수집 | 5분 |
+| hermes-knowledge.service | 전체 파이프라인 | 5분 |
+| hermes-enrich.timer | DescriptionFillProcessor | 매일 KST 03:00 |
 
 ## LLM
 
@@ -90,7 +90,8 @@ Channel IDs는 .env에 저장 (SLACK_CHANNEL_IDS)
 항상 echo '{}' 로 초기화 ([]로 초기화하면 TypeError 발생)
 
 ## MCP Server ModuleNotFoundError
-hermes mcp add gina --command python --env PYTHONPATH=/opt/gina --args -m processor.mcp.server
+hermes mcp add hermes-wiki --command python --env PYTHONPATH=/opt/knowledge-engine --args -m processor.mcp.server
+# /opt/hermes 쓰지 말 것 — nousresearch/hermes-agent 이미지 자체 내장 경로라 vendor 설치 덮어씀
 
 ## Cerebras 느릴 때
 응답 지연 발생 시 Groq으로 전환 (단, 일일 토큰 한도 100,000)

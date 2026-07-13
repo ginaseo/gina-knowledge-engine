@@ -1,4 +1,4 @@
-"""Tests for the Gina MCP server — search/build_context/health, error contract."""
+"""Tests for the Hermes MCP server — search/build_context/health, error contract."""
 
 import asyncio
 import json

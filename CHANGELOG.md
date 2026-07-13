@@ -6,7 +6,23 @@
 - Project renamed `gina-knowledge-engine` → `hermes-knowledge-engine` (repo URL, package name)
   - GitHub repo renamed (GitHub redirects the old URL)
   - Local clone directory rename pending (deferred — working directory locked by active session)
-  - Deploy server path `/home/ubuntu/gina-knowledge-engine` intentionally left unchanged
+  - EC2 deploy path renamed to `/home/ubuntu/hermes-knowledge-engine`, systemd units
+    renamed to `hermes-knowledge` / `hermes-slack` / `hermes-enrich` (verified on server,
+    all active)
+  - `.venv` on EC2 still has the old `gina-mcp` console script only — needs
+    `pip install -e .` re-run after this pyproject.toml change lands, to generate
+    `hermes-mcp`
+  - `/opt/gina` PYTHONPATH confirmed to be a Docker bind mount, defined in
+    `/home/ubuntu/hermes-docker/docker-compose.yml` (`hermes-gateway` +
+    `hermes-dashboard` services), source `/home/ubuntu/gina-knowledge-engine`
+  - **`/opt/hermes` is not a safe destination** — it already exists inside the
+    `nousresearch/hermes-agent` base image itself (own `cli.py`, `agent/`, etc.);
+    mounting this repo there would shadow the vendor's install. Using
+    `/opt/knowledge-engine` instead
+  - Hermes Gateway MCP server registration lives inside the `hermes-gateway`
+    container's own config (not `~/.hermes/` on the EC2 host). Old `gina` stdio
+    server removed via `hermes mcp add`/`remove`; re-registration as `hermes-wiki`
+    pointing at `/opt/knowledge-engine` in progress
 
 ## v1.2.1 (2026-07-07)
 
