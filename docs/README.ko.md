@@ -1,6 +1,6 @@
 # Hermes Knowledge Engine
 
-**🇺🇸 [English](README.md)**
+**🇺🇸 [English](../README.md)**
 
 Slack 대화와 Claude Code 세션을 자동으로 요약·연결해서, 검색 가능한 Obsidian
 지식 vault로 정리해주는 개인용 지식 파이프라인입니다.
@@ -47,7 +47,7 @@ cp .env.example .env
 hermes run
 ```
 
-전체 설치, 환경 변수, 개발 환경 설정은 [INSTALL.ko.md](docs/INSTALL.ko.md) 참고.
+전체 설치, 환경 변수, 개발 환경 설정은 [INSTALL.ko.md](INSTALL.ko.md) 참고.
 
 ### 자주 쓰는 명령어
 
@@ -64,10 +64,10 @@ hermes --help               # 그 외 전체 명령어
 
 ## 더 알아보기
 
-- [INSTALL.ko.md](docs/INSTALL.ko.md) — 전체 설치, 설정, 개발 환경 세팅
-- [docs/pipeline.ko.md](docs/pipeline.ko.md) — 프로세서 파이프라인, 폴더 구조, 캐싱/증분 처리 상세
-- [docs/ingest-sources.ko.md](docs/ingest-sources.ko.md) — Slack & Claude Code provider, 새 소스 추가 방법
-- [docs/operations.ko.md](docs/operations.ko.md) — daemon 모드, 평가, 검색 벤치마크, 배포 관련 참고사항
-- [docs/vault-sync.ko.md](docs/vault-sync.ko.md) — Syncthing으로 여러 기기 간 vault 동기화
-- [MCP.ko.md](docs/MCP.ko.md) — MCP 서버 설정 및 도구
-- [ARCHITECTURE.ko.md](docs/ARCHITECTURE.ko.md) — 시스템 설계
+- [INSTALL.ko.md](INSTALL.ko.md) — 전체 설치, 설정, 개발 환경 세팅
+- [pipeline.ko.md](pipeline.ko.md) — 프로세서 파이프라인, 폴더 구조, 캐싱/증분 처리 상세
+- [ingest-sources.ko.md](ingest-sources.ko.md) — Slack & Claude Code provider, 새 소스 추가 방법
+- [operations.ko.md](operations.ko.md) — daemon 모드, 평가, 검색 벤치마크, 배포 관련 참고사항
+- [vault-sync.ko.md](vault-sync.ko.md) — Syncthing으로 여러 기기 간 vault 동기화
+- [MCP.ko.md](MCP.ko.md) — MCP 서버 설정 및 도구
+- [ARCHITECTURE.ko.md](ARCHITECTURE.ko.md) — 시스템 설계

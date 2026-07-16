@@ -1,6 +1,6 @@
 # Hermes Knowledge Engine
 
-**🇰🇷 [한국어](README.ko.md)**
+**🇰🇷 [한국어](docs/README.ko.md)**
 
 A personal knowledge pipeline that turns your Slack conversations and Claude Code
 sessions into a self-organizing, searchable Obsidian vault — automatically summarized,
