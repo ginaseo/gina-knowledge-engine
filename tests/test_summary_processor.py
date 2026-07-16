@@ -14,7 +14,7 @@ def patch_paths(vault, monkeypatch, tmp_path):
     prompt_file = tmp_path / "summary_prompt.txt"
     prompt_file.write_text("Summarize: {markdown}", encoding="utf-8")
 
-    monkeypatch.setattr(sp_module, "INPUT", vault / "knowledge" / "slack")
+    monkeypatch.setattr(sp_module, "KNOWLEDGE_ROOT", vault / "knowledge")
     monkeypatch.setattr(sp_module, "OUTPUT", vault / "knowledge" / "summary")
     monkeypatch.setattr(sp_module, "PROMPT", prompt_file)
     monkeypatch.setattr(ps_module, "STATE_DIR", vault / "index")

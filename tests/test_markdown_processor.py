@@ -9,8 +9,9 @@ from processor.markdown_processor import MarkdownProcessor
 
 @pytest.fixture(autouse=True)
 def patch_paths(vault, monkeypatch):
-    monkeypatch.setattr(mp_module, "RAW", vault / "slack")
-    monkeypatch.setattr(mp_module, "KNOWLEDGE", vault / "knowledge" / "slack")
+    monkeypatch.setattr(mp_module, "SOURCES", [("slack", "SlackProvider", vault / "slack")])
+    monkeypatch.setattr(mp_module, "SOURCE_NAMES", ["slack"])
+    monkeypatch.setattr(mp_module, "KNOWLEDGE_ROOT", vault / "knowledge")
     monkeypatch.setattr(ps_module, "STATE_DIR", vault / "index")
 
 
