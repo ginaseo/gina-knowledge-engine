@@ -38,7 +38,7 @@ mcp_servers:
 
 Reload without restarting: `/reload-mcp`
 
-### Verified Registration (EC2)
+### Verified Registration (Production)
 
 Actually used in production — registers the server with the correct `PYTHONPATH`
 so stdio launch resolves `processor.mcp.server` regardless of Hermes Gateway's CWD:
@@ -46,21 +46,19 @@ so stdio launch resolves `processor.mcp.server` regardless of Hermes Gateway's C
 ```bash
 hermes mcp add hermes-wiki \
   --command python \
-  --env PYTHONPATH=/opt/knowledge-engine \
+  --env PYTHONPATH=<path where this repo is mounted/deployed> \
   --args -m processor.mcp.server
 ```
 
-> `/opt/...` is a path inside the `hermes-gateway` Docker container (bind-mounted
-> from `/home/ubuntu/hermes-knowledge-engine` via `hermes-docker/docker-compose.yml`),
-> not the EC2 host's own `/opt`. **Do not use `/opt/hermes`** — that path already
-> exists inside the `nousresearch/hermes-agent` image itself (its own `cli.py`,
-> `agent/`, etc.); mounting this repo there would shadow the vendor's install.
-> `/opt/knowledge-engine` is the collision-free destination actually verified on EC2.
+> If Hermes Gateway runs in a container with this repo bind-mounted, `PYTHONPATH`
+> must point at the path *inside the container*, not the host path. Pick a
+> collision-free destination — don't reuse a path the base image already uses
+> for its own install (that would shadow the vendor's files).
 
 ## Known Issue: ModuleNotFoundError
 
 **Cause**: Hermes Gateway launches stdio MCP servers without project directory as CWD.
-**Solution**: same as above (`--env PYTHONPATH=/opt/knowledge-engine`).
+**Solution**: same as above (`--env PYTHONPATH=<repo path>`).
 
 ## Slack Query Example
 

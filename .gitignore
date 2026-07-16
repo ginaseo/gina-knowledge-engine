@@ -32,3 +32,4 @@ Thumbs.db
 .env.bak*
 # Claude
 CLAUDE.md
+docs/HANDOVER.md
