@@ -23,11 +23,7 @@ class SummaryProcessor:
         OUTPUT.mkdir(parents=True, exist_ok=True)
 
         state = ProcessingState("summary", force=self.force)
-        files = [
-            f
-            for source in SOURCE_NAMES
-            for f in (KNOWLEDGE_ROOT / source).glob("*.md")
-        ]
+        files = [f for source in SOURCE_NAMES for f in (KNOWLEDGE_ROOT / source).glob("*.md")]
 
         if not files:
             logger.info("[INFO] No markdown files.")
