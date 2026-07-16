@@ -4,14 +4,12 @@ from __future__ import annotations
 
 import json
 import re
-from pathlib import Path
 
 from processor.log import get_logger
+from processor.paths import VAULT
 
 logger = get_logger(__name__)
 
-ROOT = Path(__file__).resolve().parents[1]
-VAULT = ROOT / "HermesVault"
 QUESTIONS_FILE = VAULT / "benchmark" / "questions.json"
 INDEX_FILE = VAULT / "index" / "vault_index.json"
 

@@ -8,9 +8,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from ingest.base import BaseProvider
-
-ROOT = Path(__file__).resolve().parents[2]
-VAULT = ROOT / "HermesVault"
+from processor.paths import ROOT, VAULT
 
 load_dotenv(ROOT / ".env")
 

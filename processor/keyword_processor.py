@@ -1,11 +1,8 @@
-from pathlib import Path
-
 from processor.llm.client import LLMClient
 from processor.log import get_logger
+from processor.paths import ROOT, VAULT
 from processor.processing_state import ProcessingState
 
-ROOT = Path(__file__).resolve().parents[1]
-VAULT = ROOT / "HermesVault"
 SUMMARY = VAULT / "knowledge" / "summary"
 KEYWORD = VAULT / "knowledge" / "keywords"
 PROMPT = ROOT / "processor" / "prompts" / "keyword_prompt.txt"

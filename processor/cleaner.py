@@ -1,9 +1,7 @@
 from pathlib import Path
 
 from processor.log import get_logger
-
-ROOT = Path(__file__).resolve().parents[1]
-VAULT = ROOT / "HermesVault"
+from processor.paths import VAULT
 
 logger = get_logger(__name__)
 

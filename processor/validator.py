@@ -1,11 +1,8 @@
 import json
-from pathlib import Path
 
 from processor.log import get_logger
+from processor.paths import VAULT
 from processor.processing_state import ProcessingState
-
-ROOT = Path(__file__).resolve().parents[1]
-VAULT = ROOT / "HermesVault"
 
 logger = get_logger(__name__)
 

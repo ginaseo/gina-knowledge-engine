@@ -9,11 +9,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from processor.log import get_logger
+from processor.paths import VAULT
 
 logger = get_logger(__name__)
 
-ROOT = Path(__file__).resolve().parents[1]
-VAULT = ROOT / "HermesVault"
 EVAL_HISTORY_FILE = VAULT / "index" / "evaluation_history.json"
 REPORTS_DIR = VAULT / "reports"
 

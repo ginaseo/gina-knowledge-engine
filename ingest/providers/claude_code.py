@@ -11,9 +11,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from ingest.base import BaseProvider
+from processor.paths import VAULT
 
-ROOT = Path(__file__).resolve().parents[2]
-VAULT = ROOT / "HermesVault"
 STATE_FILE = VAULT / "index" / "claude_code_state.json"
 
 
@@ -27,7 +26,7 @@ class ClaudeCodeProvider(BaseProvider):
         if STATE_FILE.exists():
             try:
                 return json.loads(STATE_FILE.read_text(encoding="utf-8"))
-            except Exception:
+            except (json.JSONDecodeError, OSError):
                 pass
         return {}
 

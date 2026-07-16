@@ -10,15 +10,14 @@ from __future__ import annotations
 import importlib
 import time
 from dataclasses import dataclass, field
-from pathlib import Path
 
 from processor.history import JobHistory, JobRecord
 from processor.log import get_logger
+from processor.paths import VAULT
 
 logger = get_logger(__name__)
 
-ROOT = Path(__file__).resolve().parents[1]
-SCHEDULE_FILE = ROOT / "HermesVault" / "config" / "schedule.yaml"
+SCHEDULE_FILE = VAULT / "config" / "schedule.yaml"
 
 _TICK = 10  # seconds between scheduling checks
 

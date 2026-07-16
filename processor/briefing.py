@@ -7,10 +7,9 @@ LLM 불필요 — vault_index + summary 파일 기반.
 
 import json
 from datetime import datetime, timedelta, timezone
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-VAULT = ROOT / "HermesVault"
+from processor.paths import VAULT
+
 SUMMARY = VAULT / "knowledge" / "summary"
 ENTITY = VAULT / "knowledge" / "entity"
 INDEX_FILE = VAULT / "index" / "vault_index.json"

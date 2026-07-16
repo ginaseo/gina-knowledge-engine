@@ -1,13 +1,13 @@
 import json
 import os
 from datetime import datetime
-from pathlib import Path
+
 from dotenv import load_dotenv
 from slack_sdk import WebClient
-from ingest.base import BaseProvider
 
-ROOT = Path(__file__).resolve().parents[2]
-VAULT = ROOT / "HermesVault"
+from ingest.base import BaseProvider
+from processor.paths import ROOT, VAULT
+
 STATE_FILE = VAULT / "index" / "slack_state.json"
 load_dotenv(ROOT / ".env")
 
@@ -77,6 +77,7 @@ class SlackProvider(BaseProvider):
 
             # 이미 저장된 timestamp 추출
             import re
+
             saved_ts = set(re.findall(r"Timestamp: ([\d.]+)", existing))
 
             new_messages = [m for m in messages if m.get("ts", "") not in saved_ts]

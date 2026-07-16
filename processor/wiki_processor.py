@@ -1,11 +1,8 @@
-from pathlib import Path
-
 from processor.log import get_logger
 from processor.markdown_processor import SOURCE_NAMES
+from processor.paths import VAULT
 from processor.processing_state import ProcessingState
 
-ROOT = Path(__file__).resolve().parents[1]
-VAULT = ROOT / "HermesVault"
 KNOWLEDGE_ROOT = VAULT / "knowledge"
 WIKI_ROOT = VAULT / "wiki"
 

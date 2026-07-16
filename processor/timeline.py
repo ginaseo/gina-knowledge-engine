@@ -7,10 +7,9 @@ LLM 불필요 — vault_index.json 기반 정렬/필터.
 
 import json
 from datetime import datetime, timedelta, timezone
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-VAULT = ROOT / "HermesVault"
+from processor.paths import VAULT
+
 INDEX_FILE = VAULT / "index" / "vault_index.json"
 
 

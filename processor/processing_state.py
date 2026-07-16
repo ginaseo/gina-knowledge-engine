@@ -3,8 +3,9 @@ import os
 import tempfile
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-STATE_DIR = ROOT / "HermesVault" / "index"
+from processor.paths import VAULT
+
+STATE_DIR = VAULT / "index"
 
 
 class ProcessingState:

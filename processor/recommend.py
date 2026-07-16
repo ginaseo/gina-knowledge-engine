@@ -7,10 +7,9 @@ LLM 불필요 — related/ JSON 그래프 순회만으로 구현 (rule-based).
 
 import json
 import time
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-VAULT = ROOT / "HermesVault"
+from processor.paths import ROOT, VAULT
+
 ENTITY = VAULT / "knowledge" / "entity"
 RELATED = VAULT / "knowledge" / "related"
 WIKI = VAULT / "wiki"

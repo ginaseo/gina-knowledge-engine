@@ -5,14 +5,13 @@ from __future__ import annotations
 import json
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
-from pathlib import Path
 
 from processor.log import get_logger
+from processor.paths import VAULT
 
 logger = get_logger(__name__)
 
-ROOT = Path(__file__).resolve().parents[1]
-HISTORY_FILE = ROOT / "HermesVault" / "index" / "job_history.json"
+HISTORY_FILE = VAULT / "index" / "job_history.json"
 _MAX_RECORDS = 500
 
 
