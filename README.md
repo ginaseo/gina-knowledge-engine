@@ -1,6 +1,6 @@
 # Hermes Knowledge Engine
 
-A personal knowledge pipeline that automatically collects Slack messages and processes them into a structured Obsidian vault using an LLM.
+A personal knowledge pipeline that automatically collects Slack messages and Claude Code session transcripts, then processes them into a structured Obsidian vault using an LLM.
 
 ---
 
@@ -93,11 +93,11 @@ python -m processor.runner --log-file=logs/hermes.log  # log to file
 ## Processor Pipeline
 
 ```
-slack/ (raw)
-  └─→ MarkdownProcessor  →  knowledge/slack/
-  └─→ WikiProcessor      →  wiki/slack/
+slack/ (raw)          ─┐
+claude-code/ (raw)     ├─→ MarkdownProcessor  →  knowledge/<source>/
+                       └─→ WikiProcessor      →  wiki/<source>/
 
-knowledge/slack/
+knowledge/<source>/ (slack, claude-code, ...)
   └─→ SummaryProcessor   →  knowledge/summary/
 
 knowledge/summary/
@@ -234,6 +234,54 @@ written to `HermesVault/reports/daily-learning.md`.
 
 ---
 
+## Ingest Sources
+
+### Slack
+
+`SlackProvider` polls configured channels and lands raw messages under `HermesVault/slack/`.
+
+### Claude Code Sessions
+
+`ClaudeCodeProvider` (`ingest/providers/claude_code.py`) imports the transcript of the
+session that just ended, via a Claude Code `SessionEnd` hook, into
+`HermesVault/claude-code/<year>/<month>/<date>-<session-id-8>.md`. Each run is dedup'd
+against `HermesVault/index/claude_code_state.json` (keyed by session ID + transcript
+mtime), so a session already imported and unchanged since is skipped.
+
+Wire it up as a `SessionEnd` hook in Claude Code settings, piping the hook's stdin JSON
+(`transcript_path`, `session_id`, `cwd`) to:
+
+```bash
+python ingest/providers/claude_code.py
+```
+
+Once landed, the file flows through the same `MarkdownProcessor → SummaryProcessor →
+EntityProcessor/WikiProcessor` pipeline as Slack messages — no separate processing path.
+
+---
+
+## Vault Sync (Syncthing)
+
+`HermesVault/` can be mirrored between machines (e.g. a local workstation and the EC2
+deployment) with [Syncthing](https://syncthing.net), so wiki edits and freshly ingested
+notes stay in sync regardless of which side ran the pipeline.
+
+- Folder ID `hermesvault`, shared between the two devices' Syncthing instances
+- Local path: wherever `HermesVault/` lives in this repo checkout
+- Remote path: `/home/ubuntu/hermes-knowledge-engine/HermesVault` on the EC2 box
+- On Linux, run it as a `systemd --user` service (`syncthing.service`) with
+  `loginctl enable-linger` so it starts without an interactive login
+- Each side needs a `.stfolder` marker **inside** `HermesVault/` (not the repo root) —
+  Syncthing refuses to scan a folder without one
+
+Filesystem gotcha: Windows is case-insensitive, Linux isn't. Entity/wiki pages that
+differ only by case (`Architecture.md` vs `architecture.md`) collide on the Windows
+side. `EntityProcessor` now dedups stub creation case-insensitively to prevent new
+duplicates; pre-existing ones must be cleaned up by hand (keep whichever file has real
+content, delete the stub).
+
+---
+
 ## MCP Server
 
 See [MCP.md](MCP.md) for setup, tools, and Hermes integration details.
@@ -276,4 +324,3 @@ sudo journalctl -u hermes-knowledge -f
 ## Roadmap
 
 - GitHub ingest provider (issues/PRs → vault) — planned, not started
-- Claude ingest provider — planned, not started

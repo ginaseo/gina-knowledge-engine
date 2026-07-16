@@ -25,11 +25,6 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
-# Root-level ad-hoc scripts (not part of the package)
-test_auth.py
-test_encoding.py
-test_hermes.py
-test_llm.py
 .env.bak*
 # Claude
 CLAUDE.md
