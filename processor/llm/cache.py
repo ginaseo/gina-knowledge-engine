@@ -3,10 +3,10 @@ import json
 import os
 import tempfile
 import threading
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
-CACHE_DIR = ROOT / "HermesVault" / "cache"
+from processor.paths import VAULT
+
+CACHE_DIR = VAULT / "cache"
 CACHE_FILE = CACHE_DIR / "llm_cache.json"
 
 _flush_lock = threading.Lock()

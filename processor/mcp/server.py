@@ -11,10 +11,8 @@ from mcp.server.fastmcp.exceptions import ToolError
 
 from processor import retrieval
 from processor.log import get_logger
+from processor.paths import VAULT
 from processor.vault_indexer import _SEARCH_FOLDERS
-
-ROOT = Path(__file__).resolve().parents[2]
-VAULT = ROOT / "HermesVault"
 
 SEARCH_TIMEOUT = 2.0
 BUILD_CONTEXT_SOFT_TIMEOUT = 3.0
