@@ -1,28 +1,52 @@
 # Changelog
-## Unreleased (2026-07-13)
+
+## v1.3.0 (2026-07-17)
+
+### Added
+
+- Claude Code session ingest provider (`ingest/providers/claude_code.py`) —
+  imports the transcript of the session that just ended via a `SessionEnd`
+  hook, deduped against `HermesVault/index/claude_code_state.json`
+- Korean translations for the README and every doc linked from it
+  (`README.ko.md`, `docs/*.ko.md`)
 
 ### Changed
 
+- `MarkdownProcessor` / `SummaryProcessor` / `WikiProcessor` refactored to
+  iterate a shared `SOURCES` list instead of hardcoding the Slack path, so
+  new ingest sources (Claude Code, and future ones) flow through the same
+  pipeline with no extra wiring
+- README slimmed to pitch/features/quick start; reference docs (pipeline,
+  ingest sources, operations, vault sync, architecture, install, MCP, changelog,
+  handover) consolidated under `docs/`
 - Project renamed `gina-knowledge-engine` → `hermes-knowledge-engine` (repo URL, package name)
   - GitHub repo renamed (GitHub redirects the old URL)
-  - Local clone directory rename pending (deferred — working directory locked by active session)
   - EC2 deploy path renamed to `/home/ubuntu/hermes-knowledge-engine`, systemd units
     renamed to `hermes-knowledge` / `hermes-slack` / `hermes-enrich` (verified on server,
     all active)
-  - `.venv` on EC2 still has the old `gina-mcp` console script only — needs
-    `pip install -e .` re-run after this pyproject.toml change lands, to generate
-    `hermes-mcp`
-  - `/opt/gina` PYTHONPATH confirmed to be a Docker bind mount, defined in
-    `/home/ubuntu/hermes-docker/docker-compose.yml` (`hermes-gateway` +
-    `hermes-dashboard` services), source `/home/ubuntu/gina-knowledge-engine`
-  - **`/opt/hermes` is not a safe destination** — it already exists inside the
-    `nousresearch/hermes-agent` base image itself (own `cli.py`, `agent/`, etc.);
-    mounting this repo there would shadow the vendor's install. Using
-    `/opt/knowledge-engine` instead
-  - Hermes Gateway MCP server registration lives inside the `hermes-gateway`
-    container's own config (not `~/.hermes/` on the EC2 host). Old `gina` stdio
-    server removed via `hermes mcp add`/`remove`; re-registration as `hermes-wiki`
-    pointing at `/opt/knowledge-engine` in progress
+  - Hermes Gateway MCP server re-registered as `hermes-wiki` pointing at a
+    collision-free `PYTHONPATH` (`/opt/hermes` collides with the vendor
+    `nousresearch/hermes-agent` image's own install — do not use it)
+- CI/CD split via `workflow_run`, dropped duplicate lint step from deploy
+- MCP tool error handling deduped; dropped dead `briefing()` channel parameter
+- KRX ingest default source path updated to its new data location
+- GitHub repo About description/topics updated to reflect multi-source ingest,
+  Obsidian, and MCP
+
+### Fixed
+
+- Entity stub creation missed case-variant filenames on case-sensitive
+  filesystems (`Architecture.md` vs `architecture.md`), spawning duplicate
+  wiki/project/people pages every run — stub existence is now checked via a
+  case-insensitive per-folder index
+- `evaluate()` MCP tool crashed on every call due to a dataclass field name
+  mismatch
+- Prompt-file drift, non-process-safe state writes, missing retry cap, stale
+  stub cleanup
+- `ruff` E501 line-length violation in `processor/mcp/server.py` docstring
+- `black` formatting failures in `summary_processor.py` / `wiki_processor.py`
+- Processor tests referencing pre-refactor attributes (`RAW`, `INPUT`) broken
+  by the multi-source change, causing 11 CI test errors
 
 ## v1.2.1 (2026-07-07)
 
