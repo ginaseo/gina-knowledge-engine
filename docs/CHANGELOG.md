@@ -1,5 +1,40 @@
 # Changelog
 
+## v1.4.0 (2026-07-23)
+
+### Added
+
+- ChatGPT export ingest provider (`ingest/providers/chatgpt.py`) — bulk-imports
+  `conversations-*.json` straight out of a ChatGPT "Export data" ZIP, one file per
+  conversation, reconstructed by following `mapping.current_node` back to the root
+  so abandoned regeneration branches are excluded; dedup'd against
+  `HermesVault/index/chatgpt_state.json`
+- `HERMES_LOCAL_HEURISTIC=1` mode — `LLMClient` can run entirely on
+  `processor/llm/local_engine.py`, a deterministic TF-IDF + dictionary-matching
+  engine, instead of calling out to the configured LLM. Zero network calls, zero
+  cost, lower quality than the real model. `cfg.validate_llm()` skips credential
+  checks in this mode
+- `## Tags` and inline `[[entity]]` wikilinks added to `knowledge/summary/*.md` via
+  a one-off local post-process (no LLM) — turns entity mentions into real graph
+  edges instead of inert `entity.json` records
+
+### Fixed
+
+- `LocalHeuristicEngine.answer()` misrouted `description_fill_prompt.txt` to the
+  entity generator (both prompts open with the same "Obsidian Knowledge Graph"
+  line), returning a list where `DescriptionFillProcessor` expected a dict and
+  crashing the run outside its try block. Added a discriminator specific to the
+  description-fill prompt and a dedicated `_description_fill()` generator
+- LLM response cache was shared across backends — a prior remote-generated answer
+  could get served in local mode and vice versa. Cache keys are now namespaced by
+  backend + model (`local-heuristic-v1` vs. `remote:<model>`)
+- `LocalHeuristicEngine` title extraction used `re.match` (anchors at string
+  start only), so it never matched past the markdown-processor's frontmatter
+  wrapper and silently fell back to the literal string "요약" as the title
+- Same title extraction didn't strip nested heading markers (`## Title` left a
+  stray `#` in the output), which produced filenames Obsidian can't resolve as
+  wikilink targets (`#` is a heading-anchor separator in `[[link#heading]]`)
+
 ## v1.3.0 (2026-07-17)
 
 ### Added

@@ -24,6 +24,25 @@ python ingest/providers/claude_code.py
 SummaryProcessor → EntityProcessor/WikiProcessor` 파이프라인을 그대로
 탑니다 — 별도 처리 경로 없음.
 
+## ChatGPT 데이터 export
+
+`ChatGPTProvider` (`ingest/providers/chatgpt.py`)는 ChatGPT "Export data"로 받은
+ZIP(또는 압축 푼 폴더)의 `conversations-*.json`을 읽어서 대화별로 마크다운 파일을
+`HermesVault/chatgpt/<year>/<month>/<date>-<conversation-id>.md`에 만듭니다.
+zip을 미리 풀 필요 없이 zip 안에서 바로 읽습니다. 각 대화는 `mapping`의
+`current_node`에서 `parent`를 따라 루트까지 거슬러 올라가는 방식으로 재구성됩니다
+— 이게 실제로 표시된 최종 브랜치이고, 버려진 재생성 브랜치는 자동으로 제외됩니다.
+
+한 번에 여러 개 가져오는 일회성 배치 provider라 훅에 안 걸려있습니다, 수동 실행:
+
+```bash
+python ingest/providers/chatgpt.py "C:\path\to\export.zip"
+```
+
+`HermesVault/index/chatgpt_state.json`(대화 ID + `update_time` 기준)으로 중복
+방지되어, 같은 export를 다시 돌려도 안 겹칩니다. 다른 소스와 마찬가지로
+같은 파이프라인을 탑니다.
+
 ## 새 소스 추가하기
 
 1. `ingest/providers/` 아래에 원본 `.md` 파일을 `HermesVault/<source>/`에

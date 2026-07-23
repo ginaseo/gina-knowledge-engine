@@ -90,4 +90,21 @@ hermes-knowledge-engine/
 `HERMES_API_URL`이나 `HERMES_API_KEY`가 없으면 첫 LLM 프로세서 실행 시 명확한
 `EnvironmentError`가 발생합니다 — 트레이스백 속에 파묻힌 알 수 없는 API 에러가
 아니라. LLM을 호출하지 않는 프로세서(markdown, wiki, cleaner, index, validator)는
-자격 증명 없이 실행됩니다.
+자격 증명 없이 실행됩니다. `HERMES_LOCAL_HEURISTIC=1`일 땐 이 검사 자체를
+건너뜁니다 — [INSTALL.ko.md](INSTALL.ko.md#로컬-휴리스틱-모드-llm-없이) 참고.
+
+## LLM 백엔드 선택
+
+`LLMClient`(`processor/llm/client.py`)는 인스턴스 생성 시 백엔드를 한 번 정합니다:
+기본은 OpenAI 호환 원격 API, `HERMES_LOCAL_HEURISTIC=1`이면
+`LocalHeuristicEngine`(`processor/llm/local_engine.py`). LLM 쓰는 4개 프로세서
+(summary, entity, keyword, related)와 `DescriptionFillProcessor` 전부 같은
+`ask()` 호출을 거치기 때문에 이 프로세서들 입장에서 백엔드 전환은 투명합니다.
+`LocalHeuristicEngine.answer()`는 각 프롬프트 템플릿의 고정 문구(주입된 문서
+내용 앞부분)를 보고 어느 생성기로 보낼지 판단합니다 — summary/entity/keyword/
+related는 `====================` 구분자를 공유하고, `description_fill_prompt.txt`는
+`{entity_name}`/`{entity_type}`/`[기존 문서]`/`[새 자료]` 형태가 따로 있어서
+그 프롬프트에만 있는 문구로 구분합니다(entity 생성기로 잘못 넘어가지 않게 —
+두 프롬프트 다 "Obsidian Knowledge Graph"로 시작해서 문구 하나만으로는
+구분 안 됨). 응답 캐시 키는 백엔드+모델별로 네임스페이스가 나뉘어 있어서
+이 플래그를 켰다 껐다 해도 다른 백엔드의 캐시된 답이 섞여 나오지 않습니다.

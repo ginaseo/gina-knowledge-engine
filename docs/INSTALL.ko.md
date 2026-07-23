@@ -61,11 +61,23 @@ HERMES_API_KEY=your-api-key
 # 선택
 HERMES_VAULT=./HermesVault   # vault 경로 커스터마이즈
 LOG_LEVEL=INFO               # DEBUG, INFO, WARNING, ERROR
+HERMES_LOCAL_HEURISTIC=1     # LLM 아예 안 쓰기 (아래 참고)
 ```
 
 `HERMES_API_URL`이나 `HERMES_API_KEY`가 없으면 첫 LLM 프로세서 시작 시 명확한
 에러 메시지가 뜹니다. LLM을 안 쓰는 프로세서(markdown, wiki, cleaner 등)는
 자격 증명 없이도 실행됩니다.
+
+### 로컬 휴리스틱 모드 (LLM 없이)
+
+`HERMES_LOCAL_HEURISTIC=1`로 설정하면 `LLMClient`가 네트워크 호출을 아예 건너뛰고,
+결정론적 TF-IDF+사전 기반 엔진(`processor/llm/local_engine.py`)으로
+summary/entity/keyword/related 링크를 생성합니다. 이 모드에서는 `HERMES_API_URL`,
+`HERMES_API_KEY`가 필요 없습니다 — `cfg.validate_llm()`이 로컬 모드일 땐 이 검사를
+건너뜁니다. LLM보다 품질은 떨어지지만(진짜 의미 이해 없음) 비용이 전혀 안 들고
+네트워크도 안 탑니다. 캐시는 백엔드별로 네임스페이스가 분리돼있어서
+(`local-heuristic-v1` vs `remote:<model>`) 이 플래그를 켰다 껐다 해도 다른 백엔드의
+결과가 섞여 나오지 않습니다.
 
 ## Vault 구조
 

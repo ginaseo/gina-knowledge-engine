@@ -45,6 +45,7 @@ pip install .
 # 3. Configure environment variables
 cp .env.example .env
 # Set HERMES_API_URL / HERMES_API_KEY (LLM endpoint) and, if using Slack, SLACK_BOT_TOKEN / SLACK_CHANNEL_IDS
+# Or set HERMES_LOCAL_HEURISTIC=1 to skip the LLM entirely (free, lower-quality summaries/entities)
 
 # 4. Run the pipeline
 hermes run

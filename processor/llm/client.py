@@ -1,5 +1,3 @@
-from openai import OpenAI
-
 from processor.config import cfg
 from processor.llm.cache import LLMCache
 from processor.log import get_logger
@@ -10,22 +8,41 @@ logger = get_logger(__name__)
 class LLMClient:
     def __init__(self):
         cfg.validate_llm()
-        self.client = OpenAI(base_url=cfg.api_url, api_key=cfg.api_key)
+        self.local = cfg.local_heuristic
+        if self.local:
+            from processor.llm.local_engine import LocalHeuristicEngine
+
+            self.engine = LocalHeuristicEngine()
+        else:
+            from openai import OpenAI
+
+            self.client = OpenAI(base_url=cfg.api_url, api_key=cfg.api_key)
         self.cache = LLMCache()
+        # Cache keys are hashed from this string, not the raw prompt -- so a
+        # backend/model change invalidates old entries instead of silently
+        # replaying output from whichever backend answered first.
+        self._cache_namespace = "local-heuristic-v1" if self.local else f"remote:{cfg.model}"
 
     def ask(self, prompt: str) -> str:
-        cached = self.cache.get(prompt)
+        cache_key = f"{self._cache_namespace}\x00{prompt}"
+        cached = self.cache.get(cache_key)
         if cached is not None:
             logger.info("[CACHE HIT]")
             return cached
-        logger.info("[LLM]")
-        response = self.client.chat.completions.create(
-            model=cfg.model,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        answer = response.choices[0].message.content or ""
+
+        if self.local:
+            logger.info("[LOCAL]")
+            answer = self.engine.answer(prompt)
+        else:
+            logger.info("[LLM]")
+            response = self.client.chat.completions.create(
+                model=cfg.model,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            answer = response.choices[0].message.content or ""
+
         answer = self._clean_json(answer)
-        self.cache.put(prompt, answer)
+        self.cache.put(cache_key, answer)
         return answer
 
     @staticmethod

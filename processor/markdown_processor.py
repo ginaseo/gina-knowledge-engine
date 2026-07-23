@@ -8,6 +8,8 @@ KNOWLEDGE_ROOT = VAULT / "knowledge"
 SOURCES = [
     ("slack", "SlackProvider", VAULT / "slack"),
     ("claude-code", "ClaudeCodeProvider", VAULT / "claude-code"),
+    ("chatgpt", "ChatGPTProvider", VAULT / "chatgpt"),
+    ("codex", "CodexProvider", VAULT / "codex"),
 ]
 SOURCE_NAMES = [s[0] for s in SOURCES]  # shared with summary_processor / wiki_processor
 

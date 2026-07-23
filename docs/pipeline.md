@@ -90,4 +90,22 @@ Incremental processing ensures only changed files are processed on each tick.
 Missing `HERMES_API_URL` or `HERMES_API_KEY` raises a clear `EnvironmentError` when
 the first LLM processor runs — not an obscure API error buried in a traceback.
 Processors that don't call the LLM (markdown, wiki, cleaner, index, validator) run
-without credentials.
+without credentials. This check is skipped when `HERMES_LOCAL_HEURISTIC=1` — see
+[INSTALL.md](INSTALL.md#local-heuristic-mode-no-llm).
+
+## LLM Backend Selection
+
+`LLMClient` (`processor/llm/client.py`) picks a backend once per instantiation:
+the OpenAI-compatible remote API by default, or `LocalHeuristicEngine`
+(`processor/llm/local_engine.py`) when `HERMES_LOCAL_HEURISTIC=1`. All four
+LLM-driven processors (summary, entity, keyword, related) and
+`DescriptionFillProcessor` go through this same `ask()` call, so the backend
+switch is transparent to them. `LocalHeuristicEngine.answer()` sniffs the fixed
+template text of each prompt (before the injected document content) to route
+to the right generator — summary/entity/keyword/related share a
+`====================` content delimiter, while `description_fill_prompt.txt`
+has its own `{entity_name}`/`{entity_type}`/`[기존 문서]`/`[새 자료]` shape and
+is matched on a string unique to that template so it isn't misrouted to the
+entity generator (both prompts open with the same "Obsidian Knowledge Graph"
+line). Response cache keys are namespaced by backend+model so toggling this
+flag can't replay a cached answer from the other backend.

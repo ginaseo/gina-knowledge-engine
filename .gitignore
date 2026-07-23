@@ -30,6 +30,9 @@ logs/
 .DS_Store
 Thumbs.db
 .env.bak*
+
+# Stray Obsidian Bases file
+무제.base
 # Claude
 CLAUDE.md
 docs/HANDOVER.md

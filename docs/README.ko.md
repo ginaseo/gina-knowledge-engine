@@ -42,6 +42,7 @@ pip install .
 # 3. 환경 변수 설정
 cp .env.example .env
 # HERMES_API_URL / HERMES_API_KEY (LLM 엔드포인트) 설정, Slack 쓸 경우 SLACK_BOT_TOKEN / SLACK_CHANNEL_IDS도 설정
+# 또는 HERMES_LOCAL_HEURISTIC=1 로 LLM 없이 돌리기 (무료, 요약/엔티티 품질은 낮음)
 
 # 4. 파이프라인 실행
 hermes run

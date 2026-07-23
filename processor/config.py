@@ -22,9 +22,12 @@ class Config:
     api_key: str
     log_level: str
     model: str
+    local_heuristic: bool
 
     def validate_llm(self) -> None:
         """Raise EnvironmentError if LLM credentials are absent."""
+        if self.local_heuristic:
+            return  # no network client involved, nothing to validate
         missing = [
             name
             for name, val in [
@@ -45,4 +48,5 @@ cfg: Config = Config(
     api_key=os.getenv("HERMES_API_KEY", ""),
     log_level=os.getenv("LOG_LEVEL", "INFO").upper(),
     model=os.getenv("HERMES_MODEL", "gpt-5.5"),
+    local_heuristic=os.getenv("HERMES_LOCAL_HEURISTIC", "").strip().lower() in ("1", "true", "yes"),
 )
